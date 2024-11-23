@@ -15,7 +15,6 @@ function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form inputs
     if (!name || !email || !password || !confirmPassword || !role) {
       setError("Please fill in all fields.");
       return;
@@ -35,10 +34,10 @@ function RegisterForm() {
     setSuccess("");
 
     const requestBody = {
-      name: name.trim(), // Add name to the request body
+      name: name.trim(),
       email: email.trim(),
       password: password,
-      role: role.toLowerCase(), // Adjust case if needed
+      role: role.toLowerCase(),
     };
 
     try {
@@ -52,7 +51,7 @@ function RegisterForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Registration error details:", errorData); // Log detailed error
+        console.error("Registration error details:", errorData);
         throw new Error(
           errorData.errors?.[0]?.message || "Registration failed"
         );
@@ -60,6 +59,16 @@ function RegisterForm() {
 
       const data = await response.json();
       console.log("Registration successful:", data);
+
+      // If a token or user data is returned, store it in localStorage
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          email: data.data.email,
+          name: data.data.name,
+          accessToken: data.data.accessToken,
+        })
+      );
 
       setSuccess("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 2000);

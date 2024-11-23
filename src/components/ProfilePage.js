@@ -1,86 +1,131 @@
-import React, { useEffect, useState } from "react";
-import { Container, Card, Button } from "react-bootstrap";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Container, Alert, Spinner, Row, Col } from "react-bootstrap";
+import { useParams } from "react-router-dom";
+import useBookings from "../components/useBookings"; // Import the custom hook
 
 function ProfilePage() {
-  const { email } = useParams();
-  const [user, setUser] = useState(null);
-  const [venues, setVenues] = useState([]);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [profileData, setProfileData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { username } = useParams();
+  const apiKey = "54591ad8-bc68-40ff-81e8-210109eadd6d";
+
+  // Get the user object from localStorage and extract the token
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = user?.accessToken;
 
   useEffect(() => {
-    // Retrieve user data from localStorage
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser || storedUser.email !== email) {
-      navigate("/login");
-      return;
-    }
-    setUser(storedUser);
-
-    // Fetch user's venues if they are a Venue Manager
-    if (storedUser.role === "Venue Manager") {
-      fetch(`https://v2.api.noroff.dev/venues?owner=${email}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch venues.");
+    const fetchProfileData = async () => {
+      try {
+        const response = await fetch(
+          `https://v2.api.noroff.dev/holidaze/profiles/${username}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "X-Noroff-API-Key": apiKey,
+            },
           }
-          return response.json();
-        })
-        .then((data) => setVenues(data))
-        .catch((err) => setError(err.message));
-    }
-  }, [email, navigate]);
+        );
 
-  if (!user) {
-    return <p>Loading...</p>;
+        if (!response.ok) {
+          const errorData = await response.json();
+          setError(errorData.errors?.[0]?.message || "Failed to load profile.");
+          setLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+        setProfileData(data.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        setError("Something went wrong. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    if (username) {
+      fetchProfileData();
+    }
+  }, [username, token]);
+
+  const {
+    bookings,
+    loading: bookingsLoading,
+    error: bookingsError,
+  } = useBookings(username, token, apiKey);
+
+  if (loading || bookingsLoading) {
+    return (
+      <Container className="mt-5 text-center">
+        <Spinner animation="border" />
+        <h3>Loading profile...</h3>
+      </Container>
+    );
   }
+
+  if (error || bookingsError) {
+    return (
+      <Container className="mt-5">
+        <Alert variant="danger">{error || bookingsError}</Alert>
+      </Container>
+    );
+  }
+
+  // Destructure profile data
+  const {
+    name,
+    avatar,
+    bio,
+    venueManager,
+    _count: { venues },
+  } = profileData;
 
   return (
     <Container className="mt-5">
-      <h2>Welcome, {user.name}</h2>
-      <p>Email: {user.email}</p>
-      <p>Role: {user.role}</p>
-      {user.avatar && (
-        <img
-          src={user.avatar}
-          alt={`${user.name}'s avatar`}
-          className="img-fluid rounded-circle mb-3"
-          style={{ width: "150px" }}
-        />
-      )}
-
-      {error && <p className="text-danger">{error}</p>}
-
-      {user.role === "Venue Manager" && (
-        <>
-          <h3>Your Venues</h3>
-          {venues.length > 0 ? (
-            venues.map((venue) => (
-              <Card key={venue.id} className="mb-3">
-                <Card.Body>
-                  <Card.Title>{venue.name}</Card.Title>
-                  <Card.Text>{venue.description}</Card.Text>
-                  <Button variant="primary" href={`/venue/${venue.id}`}>
-                    View Venue
-                  </Button>
-                </Card.Body>
-              </Card>
-            ))
+      <Row>
+        <Col md={4}>
+          {/* Profile Image */}
+          {avatar?.url ? (
+            <img src={avatar.url} alt={avatar.alt || name} width="100%" />
           ) : (
-            <p>You have no venues yet.</p>
+            <p>No avatar available</p>
           )}
-        </>
-      )}
-      <Button
-        variant="danger"
-        onClick={() => {
-          localStorage.removeItem("user");
-          navigate("/");
-        }}
-      >
-        Logout
-      </Button>
+        </Col>
+        <Col md={8}>
+          <h2>{name}'s Profile</h2>
+          <h4>Role: {venueManager ? "Venue Manager" : "Customer"}</h4>
+          <p>Bio: {bio || "No bio available"}</p>
+
+          {/* Display venues count */}
+          <h5>Venues: {venues > 0 ? venues : "No venues available"}</h5>
+
+          {/* Optional: List venues if they exist */}
+          {venues > 0 && (
+            <div>
+              <p>List of venues goes here...</p>
+            </div>
+          )}
+
+          {/* Display Bookings */}
+          {bookings.length > 0 ? (
+            <div>
+              <h5>Bookings:</h5>
+              <ul>
+                {bookings.map((booking) => (
+                  <li key={booking.id}>
+                    {booking.dateFrom} to {booking.dateTo} (Guests:{" "}
+                    {booking.guests})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p>No bookings available</p>
+          )}
+        </Col>
+      </Row>
     </Container>
   );
 }

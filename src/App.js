@@ -24,7 +24,7 @@ function App() {
         <Route path="/search" element={<SearchResults />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
-        <Route path="/profile/:email" element={<ProfilePage />} />
+        <Route path="/profile/:username" element={<ProfilePage />} />
       </Routes>
     </Router>
   );

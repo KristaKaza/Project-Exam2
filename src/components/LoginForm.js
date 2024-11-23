@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Form, Button, Container, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-function LoginForm({ onLogin }) {
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,11 +37,21 @@ function LoginForm({ onLogin }) {
       const data = await response.json();
       console.log("Login successful:", data);
 
-      // Save user data to localStorage
-      localStorage.setItem("user", JSON.stringify(data.data));
+      // Check the structure of the returned data
+      console.log("User data:", data.data);
 
-      // Redirect to profile page
-      navigate(`/profile/${data.data.email}`);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          email: data.data.email,
+          name: data.data.name,
+          accessToken: data.data.accessToken, // This should be saved here
+        })
+      );
+
+      // Debug navigate
+      console.log("Navigating to profile:", `/profile/${data.data.name}`);
+      navigate(`/profile/${data.data.name}`);
     } catch (error) {
       console.error("Error during login:", error);
       setError("Something went wrong. Please try again.");
@@ -50,30 +60,38 @@ function LoginForm({ onLogin }) {
 
   return (
     <Container className="mt-5">
-      <h2 className="text-center">Login</h2>
+      <h2 className="text-center mb-4">Login</h2>
+
+      {/* Display error message if any */}
       {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="email">
+        {/* Email input */}
+        <Form.Group controlId="email" className="mb-3">
           <Form.Label>Email address</Form.Label>
           <Form.Control
             type="email"
             placeholder="Enter email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </Form.Group>
 
-        <Form.Group controlId="password">
+        {/* Password input */}
+        <Form.Group controlId="password" className="mb-3">
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </Form.Group>
 
-        <Button variant="primary" type="submit" className="mt-3">
+        {/* Submit button */}
+        <Button variant="primary" type="submit" className="mt-3 w-100">
           Login
         </Button>
       </Form>
