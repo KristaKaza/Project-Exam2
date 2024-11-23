@@ -3,35 +3,56 @@ import { Container, Card, Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 
 function ProfilePage() {
-  const navigate = useNavigate();
   const { email } = useParams();
+  const [user, setUser] = useState(null);
   const [venues, setVenues] = useState([]);
   const [error, setError] = useState("");
-  const user = JSON.parse(localStorage.getItem("user"));
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (user?.role === "Venue Manager") {
-      // Fetch venues owned by the user
-      fetch(`https://v2.api.noroff.dev/venues?owner=${email}`)
-        .then((response) => response.json())
-        .then((data) => setVenues(data))
-        .catch((err) => setError("Failed to fetch venues"));
-    }
-  }, [email, user]);
-
-  useEffect(() => {
-    if (!user || user.email !== email) {
+    // Retrieve user data from localStorage
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser || storedUser.email !== email) {
       navigate("/login");
+      return;
     }
-  }, [user, email, navigate]);
+    setUser(storedUser);
+
+    // Fetch user's venues if they are a Venue Manager
+    if (storedUser.role === "Venue Manager") {
+      fetch(`https://v2.api.noroff.dev/venues?owner=${email}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch venues.");
+          }
+          return response.json();
+        })
+        .then((data) => setVenues(data))
+        .catch((err) => setError(err.message));
+    }
+  }, [email, navigate]);
+
+  if (!user) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <Container className="mt-5">
-      <h2>Welcome, {user?.email}</h2>
-      <p>Role: {user?.role}</p>
+      <h2>Welcome, {user.name}</h2>
+      <p>Email: {user.email}</p>
+      <p>Role: {user.role}</p>
+      {user.avatar && (
+        <img
+          src={user.avatar}
+          alt={`${user.name}'s avatar`}
+          className="img-fluid rounded-circle mb-3"
+          style={{ width: "150px" }}
+        />
+      )}
+
       {error && <p className="text-danger">{error}</p>}
 
-      {user?.role === "Venue Manager" && (
+      {user.role === "Venue Manager" && (
         <>
           <h3>Your Venues</h3>
           {venues.length > 0 ? (

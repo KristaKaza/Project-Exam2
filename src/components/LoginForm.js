@@ -16,8 +16,6 @@ function LoginForm({ onLogin }) {
       password: password,
     };
 
-    console.log("Sending login request with:", requestBody);
-
     try {
       const response = await fetch("https://v2.api.noroff.dev/auth/login", {
         method: "POST",
@@ -39,11 +37,11 @@ function LoginForm({ onLogin }) {
       const data = await response.json();
       console.log("Login successful:", data);
 
-      // Save user data to localStorage or state
-      localStorage.setItem("user", JSON.stringify(data));
+      // Save user data to localStorage
+      localStorage.setItem("user", JSON.stringify(data.data));
 
-      // Navigate to the profile page
-      navigate(`/profile/${data.email}`);
+      // Redirect to profile page
+      navigate(`/profile/${data.data.email}`);
     } catch (error) {
       console.error("Error during login:", error);
       setError("Something went wrong. Please try again.");

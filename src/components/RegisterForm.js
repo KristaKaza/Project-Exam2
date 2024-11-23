@@ -3,6 +3,7 @@ import { Form, Button, Container, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 function RegisterForm() {
+  const [name, setName] = useState(""); // Add name field
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,7 +16,7 @@ function RegisterForm() {
     e.preventDefault();
 
     // Validate form inputs
-    if (!email || !password || !confirmPassword || !role) {
+    if (!name || !email || !password || !confirmPassword || !role) {
       setError("Please fill in all fields.");
       return;
     }
@@ -34,7 +35,8 @@ function RegisterForm() {
     setSuccess("");
 
     const requestBody = {
-      email: email,
+      name: name.trim(), // Add name to the request body
+      email: email.trim(),
       password: password,
       role: role.toLowerCase(), // Adjust case if needed
     };
@@ -51,7 +53,9 @@ function RegisterForm() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Registration error details:", errorData); // Log detailed error
-        throw new Error(errorData.message || "Registration failed");
+        throw new Error(
+          errorData.errors?.[0]?.message || "Registration failed"
+        );
       }
 
       const data = await response.json();
@@ -71,6 +75,17 @@ function RegisterForm() {
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
       <Form onSubmit={handleSubmit}>
+        {/* Name Input */}
+        <Form.Group controlId="formName" className="mb-3">
+          <Form.Label>Full Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter your full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Form.Group>
+
         {/* Email Input */}
         <Form.Group controlId="formEmail" className="mb-3">
           <Form.Label>Email address</Form.Label>

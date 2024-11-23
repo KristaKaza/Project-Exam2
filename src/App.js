@@ -11,10 +11,6 @@ import ProfilePage from "./components/ProfilePage";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
   const handleLogout = () => {
     setIsAuthenticated(false);
   };
@@ -26,7 +22,7 @@ function App() {
         <Route path="/" element={<VenueGrid />} />
         <Route path="/venue/:id" element={<VenueDetails />} />
         <Route path="/search" element={<SearchResults />} />
-        <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
+        <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/profile/:email" element={<ProfilePage />} />
       </Routes>
