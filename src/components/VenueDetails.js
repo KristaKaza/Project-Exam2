@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Card, Spinner } from "react-bootstrap";
+import { Container, Spinner, Row, Col } from "react-bootstrap";
+
+import "../index.css";
 
 function VenueDetails() {
-  const { id } = useParams(); // Get venue ID from URL
+  const { id } = useParams();
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,7 +18,7 @@ function VenueDetails() {
         if (!response.ok) throw new Error("Failed to fetch venue details");
 
         const data = await response.json();
-        setVenue(data?.data || {}); // Use the `data` property from API response
+        setVenue(data?.data || {});
       } catch (error) {
         console.error("Error fetching venue:", error);
       } finally {
@@ -29,10 +31,7 @@ function VenueDetails() {
 
   if (loading) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "80vh" }}
-      >
+      <div className="venue-loading-container">
         <Spinner animation="border" variant="primary" />
       </div>
     );
@@ -43,56 +42,73 @@ function VenueDetails() {
   }
 
   return (
-    <Container className="my-5">
-      <Card style={{ borderRadius: "8px", overflow: "hidden" }}>
-        {venue.media && venue.media.length > 0 && (
-          <Card.Img
-            variant="top"
+    <Container className="venue-details-container">
+      {/* Venue Image */}
+      {venue.media && venue.media.length > 0 && (
+        <div className="text-center mb-4">
+          <img
             src={venue.media[0].url}
             alt={venue.media[0].alt || venue.name}
-            style={{ width: "100%", height: "400px", objectFit: "cover" }}
+            className="img-fluid rounded venue-image"
           />
-        )}
-        <Card.Body>
-          <Card.Title>{venue.name}</Card.Title>
-          <Card.Text>{venue.description}</Card.Text>
-          <ul>
-            <li>
-              <strong>Price:</strong> ${venue.price}
-            </li>
-            <li>
-              <strong>Max Guests:</strong> {venue.maxGuests}
-            </li>
-            <li>
-              <strong>Location:</strong> {venue.location?.city || "N/A"},{" "}
-              {venue.location?.country || "N/A"}
-            </li>
-            <li>
-              <strong>Rating:</strong> {venue.rating}
-            </li>
-          </ul>
-          {venue.meta && (
+        </div>
+      )}
+
+      {/* Venue Details */}
+      <div className="venue-details">
+        <h2>{venue.name}</h2>
+        <p>{venue.description}</p>
+
+        {/* Details and Amenities Side by Side */}
+        <Row className="mt-4">
+          {/* Details Column */}
+          <Col md={6} className="details-column border-end pe-4">
+            <h4>Details</h4>
             <ul>
               <li>
-                <strong>WiFi:</strong>{" "}
-                {venue.meta.wifi ? "Available" : "Not available"}
+                <strong>Price:</strong> ${venue.price}
               </li>
               <li>
-                <strong>Parking:</strong>{" "}
-                {venue.meta.parking ? "Available" : "Not available"}
+                <strong>Max Guests:</strong> {venue.maxGuests}
               </li>
               <li>
-                <strong>Breakfast:</strong>{" "}
-                {venue.meta.breakfast ? "Available" : "Not available"}
+                <strong>Location:</strong> {venue.location?.city || "N/A"},{" "}
+                {venue.location?.country || "N/A"}
               </li>
               <li>
-                <strong>Pets:</strong>{" "}
-                {venue.meta.pets ? "Allowed" : "Not allowed"}
+                <strong>Rating:</strong> {venue.rating}
               </li>
             </ul>
-          )}
-        </Card.Body>
-      </Card>
+          </Col>
+
+          {/* Amenities Column */}
+          <Col md={6} className="amenities-column ps-4">
+            {venue.meta && (
+              <>
+                <h4>Amenities</h4>
+                <ul>
+                  <li>
+                    <strong>WiFi:</strong>{" "}
+                    {venue.meta.wifi ? "Available" : "Not available"}
+                  </li>
+                  <li>
+                    <strong>Parking:</strong>{" "}
+                    {venue.meta.parking ? "Available" : "Not available"}
+                  </li>
+                  <li>
+                    <strong>Breakfast:</strong>{" "}
+                    {venue.meta.breakfast ? "Available" : "Not available"}
+                  </li>
+                  <li>
+                    <strong>Pets:</strong>{" "}
+                    {venue.meta.pets ? "Allowed" : "Not allowed"}
+                  </li>
+                </ul>
+              </>
+            )}
+          </Col>
+        </Row>
+      </div>
     </Container>
   );
 }
