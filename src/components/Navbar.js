@@ -40,8 +40,8 @@ function CustomNavbar({ isAuthenticated, onLogout }) {
           <Nav.Link as={Link} to="/about" className="mx-3">
             About
           </Nav.Link>
-          <Nav.Link as={Link} to="/create-booking" className="mx-3">
-            Create a Booking
+          <Nav.Link as={Link} to="/create-venue" className="mx-3">
+            Create Venue
           </Nav.Link>
         </Nav>
       </Container>

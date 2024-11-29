@@ -61,3 +61,12 @@
 .venue-details ul li {
   margin-bottom: 0.5rem;
 }
+
+.available-date {
+  background-color: #4caf50; /* Green for available dates */
+  cursor: pointer;
+}
+
+.disabled-date {
+  background-color: #f44336; /* Red for unavailable dates */
+}

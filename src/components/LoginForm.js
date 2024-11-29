@@ -11,74 +11,54 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const requestBody = {
-      email: email.trim(),
-      password: password,
-    };
+    if (!email || !password) {
+      setError("All fields are required");
+      return;
+    }
+
+    setError("");
 
     try {
       const response = await fetch("https://v2.api.noroff.dev/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Login error details:", errorData);
-        setError(
-          errorData.errors?.[0]?.message || "Invalid email or password."
-        );
+        setError(errorData.errors[0]?.message || "Login failed");
         return;
       }
 
       const data = await response.json();
-      console.log("Login successful:", data);
+      const { token, username } = data; // Assuming the response includes a token and username
 
-      // Check the structure of the returned data
-      console.log("User data:", data.data);
+      // Store the token in localStorage
+      localStorage.setItem("authToken", token);
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email: data.data.email,
-          name: data.data.name,
-          accessToken: data.data.accessToken, // This should be saved here
-        })
-      );
-
-      // Debug navigate
-      console.log("Navigating to profile:", `/profile/${data.data.name}`);
-      navigate(`/profile/${data.data.name}`);
+      // Redirect to the user's profile page
+      navigate(`/profile/${username}`);
     } catch (error) {
-      console.error("Error during login:", error);
-      setError("Something went wrong. Please try again.");
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
-    <Container className="mt-5">
-      <h2 className="text-center mb-4">Login</h2>
-
-      {/* Display error message if any */}
+    <Container>
+      <h2>Login</h2>
       {error && <Alert variant="danger">{error}</Alert>}
-
       <Form onSubmit={handleSubmit}>
-        {/* Email input */}
         <Form.Group controlId="email" className="mb-3">
-          <Form.Label>Email address</Form.Label>
+          <Form.Label>Email</Form.Label>
           <Form.Control
             type="email"
             placeholder="Enter email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
         </Form.Group>
 
-        {/* Password input */}
         <Form.Group controlId="password" className="mb-3">
           <Form.Label>Password</Form.Label>
           <Form.Control
@@ -86,12 +66,10 @@ function LoginForm() {
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
         </Form.Group>
 
-        {/* Submit button */}
-        <Button variant="primary" type="submit" className="mt-3 w-100">
+        <Button variant="primary" type="submit">
           Login
         </Button>
       </Form>

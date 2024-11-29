@@ -1,5 +1,6 @@
 // src/hooks/useBookings.js
 import { useState, useEffect } from "react";
+import "../index.css";
 
 const useBookings = (username, token, apiKey) => {
   const [bookings, setBookings] = useState([]);
@@ -7,7 +8,7 @@ const useBookings = (username, token, apiKey) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!username) return; // If no username, return
+    if (!username) return;
 
     const fetchBookings = async () => {
       try {
