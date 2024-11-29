@@ -16,3 +16,57 @@
 .btn-outline-primary {
   border-radius: 5px;
 }
+
+/* Centered loading spinner */
+.venue-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+/* Container for the entire venue details */
+.venue-details-container {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Image container styling for uniform dimensions */
+.venue-image-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Venue details section */
+.venue-details h2 {
+  margin-bottom: 1rem;
+}
+
+.venue-details p {
+  margin-bottom: 1.5rem;
+  color: #555; /* Optional: Add some color for description */
+}
+
+.venue-details h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.venue-details ul {
+  list-style: none;
+  padding: 0;
+}
+
+.venue-details ul li {
+  margin-bottom: 0.5rem;
+}
+
+.available-date {
+  background-color: #4caf50; /* Green for available dates */
+  cursor: pointer;
+}
+
+.disabled-date {
+  background-color: #f44336; /* Red for unavailable dates */
+}
