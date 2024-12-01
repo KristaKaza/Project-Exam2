@@ -1,25 +1,29 @@
 import React from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
+import { Calendar } from "react-calendar"; // If you're using the react-calendar library
+import "react-calendar/dist/Calendar.css"; // Make sure to import the styles
 
-const AvailableDatesCalendar = ({ availableDates, onDateSelect }) => {
-  // Log the available dates to confirm they're being passed correctly
-  console.log("Available Dates Passed to Calendar:", availableDates);
+function AvailableDatesCalendar({ availableDates, onDateSelect }) {
+  const availableDatesFormatted = availableDates.map((date) => new Date(date));
 
-  // Modified comparison to ensure correct date selection (ignores time part)
-  const isDateAvailable = (date) => {
-    const formattedDate = date.toISOString().split("T")[0]; // Only compare date part (YYYY-MM-DD)
-    return availableDates.includes(formattedDate); // Check if the date is available
+  const handleDateClick = (date) => {
+    onDateSelect(date);
   };
 
-  console.log("Checking dates..."); // Debugging log for date checking
-
   return (
-    <Calendar
-      onClickDay={onDateSelect} // Callback function to handle date selection
-      tileDisabled={({ date }) => !isDateAvailable(date)} // Disable unavailable dates
-    />
+    <div>
+      <Calendar
+        onClickDay={handleDateClick}
+        tileClassName={({ date }) => {
+          return availableDatesFormatted.some(
+            (availableDate) =>
+              availableDate.toDateString() === date.toDateString()
+          )
+            ? "available"
+            : "";
+        }}
+      />
+    </div>
   );
-};
+}
 
 export default AvailableDatesCalendar;

@@ -31,6 +31,10 @@
   margin-bottom: 2rem;
 }
 
+.img-fluid {
+  max-width: 50%;
+}
+
 /* Image container styling for uniform dimensions */
 .venue-image-container {
   display: flex;
@@ -45,7 +49,7 @@
 
 .venue-details p {
   margin-bottom: 1.5rem;
-  color: #555; /* Optional: Add some color for description */
+  color: #555;
 }
 
 .venue-details h4 {

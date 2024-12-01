@@ -32,7 +32,10 @@ function App() {
         <Route path="/venue/:id" element={<VenueDetails />} />
         <Route path="/create-venue" element={<CreateVenuePage />} />
         <Route path="/search" element={<SearchResults />} />
-        <Route path="/login" element={<LoginForm />} />
+        <Route
+          path="/login"
+          element={<LoginForm setIsAuthenticated={setIsAuthenticated} />}
+        />
         <Route path="/register" element={<RegisterForm />} />
 
         {/* Update Profile Page */}
