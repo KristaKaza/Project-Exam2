@@ -1,39 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Container, Form, Button, Alert } from "react-bootstrap";
 
-const UpdateProfileForm = ({ onUpdateProfile }) => {
-  const location = useLocation();
-  const currentUser = location.state?.profile;
+const UpdateProfileForm = () => {
+  const navigate = useNavigate();
 
-  // Initialize state with default values and useEffect to update once currentUser is available
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
   const [venueManager, setVenueManager] = useState(false);
+  const [error, setError] = useState("");
 
-  // Once currentUser is available, update state
-  useEffect(() => {
-    if (currentUser) {
-      setBio(currentUser.bio || "");
-      setAvatarUrl(currentUser.avatar?.url || "");
-      setBannerUrl(currentUser.banner?.url || "");
-      setVenueManager(currentUser.venueManager || false);
-    }
-  }, [currentUser]);
+  const name = JSON.parse(localStorage.getItem("user"))?.name;
+  const token = localStorage.getItem("authToken");
 
-  // Return loading state if currentUser is not available
-  if (!currentUser) {
-    return <div>Loading...</div>;
+  if (!name || !token) {
+    alert("You must be logged in to update your profile.");
+    navigate("/login");
+    return null;
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!currentUser || !currentUser.name) {
-      console.error("Error: currentUser is not defined or has no name");
-      alert("Failed to update profile: currentUser data is invalid.");
-      return;
-    }
 
     const updatedProfile = {
       bio,
@@ -49,15 +37,14 @@ const UpdateProfileForm = ({ onUpdateProfile }) => {
     };
 
     try {
-      const token = localStorage.getItem("authToken");
       const response = await fetch(
-        `https://v2.api.noroff.dev/holidaze/profiles/${currentUser.name}`,
+        `https://v2.api.noroff.dev/holidaze/profiles/${name}`,
         {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
-            "X-Noroff-API-Key": "b61fd6a4-7084-485e-8368-40fa2e08e36e",
             "Content-Type": "application/json",
+            "X-Noroff-API-Key": "b61fd6a4-7084-485e-8368-40fa2e08e36e",
           },
           body: JSON.stringify(updatedProfile),
         }
@@ -66,82 +53,70 @@ const UpdateProfileForm = ({ onUpdateProfile }) => {
       const data = await response.json();
 
       if (response.ok) {
-        onUpdateProfile(data.data);
         alert("Profile updated successfully!");
       } else {
-        alert("Failed to update profile");
+        setError("Failed to update profile");
       }
     } catch (error) {
       console.error("Error updating profile", error);
-      alert("An error occurred while updating your profile.");
+      setError("An error occurred while updating your profile.");
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Update Your Profile</h2>
-      <form onSubmit={handleSubmit} className="mt-4">
-        <div className="mb-3">
-          <label htmlFor="bio" className="form-label">
-            Bio:
-          </label>
-          <textarea
-            id="bio"
-            className="form-control"
+    <Container className="mt-5">
+      <h2 className="text-center mb-4">Update Your Profile</h2>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="bio" className="mb-4">
+          <Form.Label>Bio</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={4}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="Update your bio"
-            rows="4"
           />
-        </div>
+        </Form.Group>
 
-        <div className="mb-3">
-          <label htmlFor="avatarUrl" className="form-label">
-            Avatar URL:
-          </label>
-          <input
+        <Form.Group controlId="avatarUrl" className="mb-4">
+          <Form.Label>Avatar URL</Form.Label>
+          <Form.Control
             type="url"
-            id="avatarUrl"
-            className="form-control"
             value={avatarUrl}
             onChange={(e) => setAvatarUrl(e.target.value)}
             placeholder="Enter a URL for your avatar image"
           />
-        </div>
+        </Form.Group>
 
-        <div className="mb-3">
-          <label htmlFor="bannerUrl" className="form-label">
-            Banner URL:
-          </label>
-          <input
+        <Form.Group controlId="bannerUrl" className="mb-4">
+          <Form.Label>Banner URL</Form.Label>
+          <Form.Control
             type="url"
-            id="bannerUrl"
-            className="form-control"
             value={bannerUrl}
             onChange={(e) => setBannerUrl(e.target.value)}
             placeholder="Enter a URL for your banner image"
           />
-        </div>
+        </Form.Group>
 
-        <div className="mb-3 form-check">
-          <label className="form-check-label">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              checked={venueManager}
-              onChange={() => setVenueManager((prev) => !prev)}
-            />
-            Venue Manager
-          </label>
-        </div>
+        <Form.Group controlId="venueManager" className="mb-4">
+          <Form.Check
+            type="checkbox"
+            label="Venue Manager"
+            checked={venueManager}
+            onChange={() => setVenueManager(!venueManager)}
+          />
+        </Form.Group>
 
-        <div className="text-center">
-          <button type="submit" className="btn btn-primary mt-3">
+        <div className="d-flex justify-content-center">
+          <Button variant="primary" type="submit" className="w-50">
             Update Profile
-          </button>
+          </Button>
         </div>
-      </form>
-    </div>
+      </Form>
+    </Container>
   );
 };
 
