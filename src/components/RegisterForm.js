@@ -27,7 +27,7 @@ function RegisterForm() {
 
     setError("");
 
-    const venueManager = role === "venue_manager"; // true if role is "venue_manager"
+    const venueManager = role === "venue_manager";
 
     const userData = { email, password, name, venueManager };
 

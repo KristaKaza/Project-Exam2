@@ -10,7 +10,7 @@ import ProfilePage from "./components/ProfilePage";
 import CreateBookingPage from "./components/CreateBookingPage";
 import CreateVenuePage from "./components/CreateVenuePage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import UpdateProfileForm from "./components/UpdateProfileForm"; // Import the correct page
+import UpdateProfileForm from "./components/UpdateProfileForm";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -21,7 +21,7 @@ function App() {
     localStorage.removeItem("user");
     localStorage.removeItem("authToken");
     setIsAuthenticated(false);
-    window.location.href = "/login"; // Redirect to login after logout
+    window.location.href = "/login";
   };
 
   return (

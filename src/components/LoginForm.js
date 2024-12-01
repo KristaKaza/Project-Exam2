@@ -3,7 +3,6 @@ import { Form, Button, Container, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 function LoginForm({ setIsAuthenticated }) {
-  // Get the function as a prop
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -12,13 +11,12 @@ function LoginForm({ setIsAuthenticated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic form validation
     if (!email || !password) {
       setError("All fields are required.");
       return;
     }
 
-    setError(""); // Reset previous errors
+    setError("");
 
     try {
       // Make a POST request to the login API
@@ -51,14 +49,10 @@ function LoginForm({ setIsAuthenticated }) {
       localStorage.setItem("authToken", accessToken);
       localStorage.setItem("user", JSON.stringify({ name, email }));
 
-      // Update the authentication state in App.js
       setIsAuthenticated(true);
-
-      // Redirect to the user profile page
       console.log("Redirecting to profile with name:", name);
       navigate(`/profile/${name}`);
     } catch (error) {
-      // Handle any unexpected errors
       console.error("Login error:", error);
       setError("An error occurred. Please try again.");
     }
@@ -67,7 +61,6 @@ function LoginForm({ setIsAuthenticated }) {
   return (
     <Container>
       <h2>Login</h2>
-      {/* Show error alert if an error occurs */}
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>

@@ -12,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 function CustomNavbar({ isAuthenticated, onLogout }) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")); // Get the user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const handleSearch = (e) => {
     e.preventDefault();

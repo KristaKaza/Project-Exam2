@@ -10,7 +10,7 @@ import {
   Alert,
   Form,
 } from "react-bootstrap";
-import AvailableDatesCalendar from "./AvailableDatesCalendar"; // Assuming AvailableDatesCalendar.js is in the same directory
+import AvailableDatesCalendar from "./AvailableDatesCalendar";
 import "../index.css";
 
 function VenueDetails() {
@@ -20,13 +20,13 @@ function VenueDetails() {
   const [showModal, setShowModal] = useState(false);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [guests, setGuests] = useState(1); // Track guests number
+  const [guests, setGuests] = useState(1);
   const [availableDates, setAvailableDates] = useState([]);
   const [bookingStatus, setBookingStatus] = useState("");
   const [error, setError] = useState(null);
   const [isVenueManager, setIsVenueManager] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user")); // Retrieve user data from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -56,7 +56,9 @@ function VenueDetails() {
       }
     };
 
-    fetchVenue();
+    if (user) {
+      fetchVenue();
+    }
   }, [id, user?.name]);
 
   const handleBookHere = () => {
@@ -83,7 +85,6 @@ function VenueDetails() {
       venueId: id,
     };
 
-    // Retrieve the authToken from localStorage
     const authToken = localStorage.getItem("authToken");
 
     console.log("Auth Token:", authToken);

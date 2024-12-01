@@ -69,8 +69,8 @@ const ProfilePage = () => {
 
         const data = await response.json();
         if (response.ok) {
-          console.log("Fetched User Venues:", data); // Debugging the response
-          setVenues(data.data || []); // Use the correct array
+          console.log("Fetched User Venues:", data);
+          setVenues(data.data || []);
         } else {
           console.error("Error fetching venues:", data);
           setError("Failed to fetch venues.");
