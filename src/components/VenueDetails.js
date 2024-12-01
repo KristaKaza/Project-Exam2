@@ -38,7 +38,9 @@ function VenueDetails() {
         );
         if (!response.ok) throw new Error("Failed to fetch venue details");
 
+        // eslint-disable-next-line no-unused-vars
         const data = await response.json();
+
         setVenue(data?.data || {});
         setAvailableDates(data?.data?.availableDates || []);
 
@@ -55,7 +57,7 @@ function VenueDetails() {
     };
 
     fetchVenue();
-  }, [id, user?.name]);
+  }, [id, user]);
 
   const handleBookHere = () => {
     setShowModal(true);

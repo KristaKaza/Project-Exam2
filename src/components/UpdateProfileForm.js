@@ -50,8 +50,6 @@ const UpdateProfileForm = () => {
         }
       );
 
-      const data = await response.json();
-
       if (response.ok) {
         alert("Profile updated successfully!");
       } else {

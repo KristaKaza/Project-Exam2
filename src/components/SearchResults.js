@@ -82,7 +82,7 @@ const SearchResults = () => {
           <Col key={venue.id}>
             <Card
               className="h-100 clickable-card"
-              onClick={() => handleCardClick(venue.id)} // Handle card click
+              onClick={() => handleCardClick(venue.id)}
             >
               <Card.Img
                 variant="top"
