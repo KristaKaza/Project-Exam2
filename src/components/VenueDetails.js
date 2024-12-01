@@ -30,6 +30,8 @@ function VenueDetails() {
 
   useEffect(() => {
     const fetchVenue = async () => {
+      if (!user) return;
+
       try {
         const response = await fetch(
           `https://v2.api.noroff.dev/holidaze/venues/${id}`
@@ -40,25 +42,19 @@ function VenueDetails() {
         setVenue(data?.data || {});
         setAvailableDates(data?.data?.availableDates || []);
 
-        console.log("Fetched Venue Data:", data?.data);
-        console.log("Logged-in User:", user);
-
         if (data?.data?._owner?.username === user?.name) {
           setIsVenueManager(true);
         } else {
           setIsVenueManager(false);
         }
       } catch (error) {
-        console.error("Error fetching venue:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    if (user) {
-      fetchVenue();
-    }
+    fetchVenue();
   }, [id, user?.name]);
 
   const handleBookHere = () => {
