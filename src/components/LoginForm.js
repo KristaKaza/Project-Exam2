@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Form, Button, Container, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-function LoginForm() {
+function LoginForm({ setIsAuthenticated }) {
+  // Get the function as a prop
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -11,14 +12,16 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Basic form validation
     if (!email || !password) {
-      setError("All fields are required");
+      setError("All fields are required.");
       return;
     }
 
-    setError("");
+    setError(""); // Reset previous errors
 
     try {
+      // Make a POST request to the login API
       const response = await fetch("https://v2.api.noroff.dev/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,19 +30,36 @@ function LoginForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setError(errorData.errors[0]?.message || "Login failed");
+        console.error("Login error response:", errorData);
+        setError(errorData.errors?.[0]?.message || "Login failed");
         return;
       }
 
-      const data = await response.json();
-      const { token, username } = data; // Assuming the response includes a token and username
+      // Parse the response data
+      const responseData = await response.json();
+      console.log("Login response data:", responseData);
 
-      // Store the token in localStorage
-      localStorage.setItem("authToken", token);
+      const { accessToken, name } = responseData.data;
 
-      // Redirect to the user's profile page
-      navigate(`/profile/${username}`);
+      // Check if accessToken and name are present in the response
+      if (!accessToken || !name) {
+        setError("Invalid response from server");
+        return;
+      }
+
+      // Save the token and user data to localStorage for session persistence
+      localStorage.setItem("authToken", accessToken);
+      localStorage.setItem("user", JSON.stringify({ name, email }));
+
+      // Update the authentication state in App.js
+      setIsAuthenticated(true);
+
+      // Redirect to the user profile page
+      console.log("Redirecting to profile with name:", name);
+      navigate(`/profile/${name}`);
     } catch (error) {
+      // Handle any unexpected errors
+      console.error("Login error:", error);
       setError("An error occurred. Please try again.");
     }
   };
@@ -47,7 +67,9 @@ function LoginForm() {
   return (
     <Container>
       <h2>Login</h2>
+      {/* Show error alert if an error occurs */}
       {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="email" className="mb-3">
           <Form.Label>Email</Form.Label>

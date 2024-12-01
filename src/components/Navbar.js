@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 function CustomNavbar({ isAuthenticated, onLogout }) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user")); // Get the user from localStorage
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -36,9 +37,6 @@ function CustomNavbar({ isAuthenticated, onLogout }) {
         <Nav className="text-center">
           <Nav.Link as={Link} to="/" className="mx-3">
             Home
-          </Nav.Link>
-          <Nav.Link as={Link} to="/about" className="mx-3">
-            About
           </Nav.Link>
           <Nav.Link as={Link} to="/create-venue" className="mx-3">
             Create Venue
@@ -65,11 +63,22 @@ function CustomNavbar({ isAuthenticated, onLogout }) {
 
           {/* Auth Links */}
           {isAuthenticated ? (
-            <Nav.Link onClick={onLogout} className="text-primary">
-              Logout
-            </Nav.Link>
+            <>
+              {/* Link to Profile page */}
+              <Nav.Link
+                as={Link}
+                to={`/profile/${user?.name}`}
+                className="text-primary mx-2"
+              >
+                Profile
+              </Nav.Link>
+              <Nav.Link onClick={onLogout} className="text-primary mx-2">
+                Logout
+              </Nav.Link>
+            </>
           ) : (
             <>
+              {/* Show Login and Register links when not authenticated */}
               <Nav.Link as={Link} to="/login" className="text-primary mx-2">
                 Login
               </Nav.Link>
