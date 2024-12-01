@@ -27,19 +27,33 @@ function LoginForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setError(errorData.errors[0]?.message || "Login failed");
+        console.error("Login error response:", errorData);
+        setError(errorData.errors?.[0]?.message || "Login failed");
         return;
       }
 
-      const data = await response.json();
-      const { token, username } = data; // Assuming the response includes a token and username
+      const responseData = await response.json();
+      console.log("Login response data:", responseData);
 
-      // Store the token in localStorage
-      localStorage.setItem("authToken", token);
+      const { accessToken, name } = responseData.data;
 
-      // Redirect to the user's profile page
-      navigate(`/profile/${username}`);
+      if (!accessToken || !name) {
+        setError("Invalid response from server");
+        return;
+      }
+
+      // Save token and user
+      localStorage.setItem("authToken", accessToken);
+      localStorage.setItem("user", JSON.stringify({ name, email }));
+
+      console.log("Redirecting to profile with name:", name);
+
+      navigate(`/profile/${name}`); // React Router's navigate
+
+      // Try a hard redirect to ensure the page changes
+      window.location.href = `/profile/${name}`;
     } catch (error) {
+      console.error("Login error:", error);
       setError("An error occurred. Please try again.");
     }
   };

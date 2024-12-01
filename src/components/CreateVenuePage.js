@@ -4,8 +4,21 @@ import { useNavigate } from "react-router-dom";
 
 function CreateVenuePage() {
   const [venueName, setVenueName] = useState("");
-  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaAlt, setMediaAlt] = useState("");
+  const [price, setPrice] = useState(0);
+  const [maxGuests, setMaxGuests] = useState(0);
+  const [rating, setRating] = useState(0);
+  const [wifi, setWifi] = useState(false);
+  const [parking, setParking] = useState(false);
+  const [breakfast, setBreakfast] = useState(false);
+  const [pets, setPets] = useState(false);
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
+  const [continent, setContinent] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -17,8 +30,17 @@ function CreateVenuePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!venueName || !location || !description) {
-      setError("Please fill in all fields.");
+    if (!venueName || !description || !price || !maxGuests) {
+      setError("Name, description, price, and max guests are required.");
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = user?.accessToken;
+
+    if (!token) {
+      console.error("No token found, redirecting to login...");
+      navigate("/login");
       return;
     }
 
@@ -27,8 +49,31 @@ function CreateVenuePage() {
 
     const requestBody = {
       name: venueName.trim(),
-      location: location.trim(),
       description: description.trim(),
+      media: mediaUrl
+        ? [
+            {
+              url: mediaUrl.trim(),
+              alt: mediaAlt.trim() || "Venue image",
+            },
+          ]
+        : [],
+      price: parseFloat(price),
+      maxGuests: parseInt(maxGuests),
+      rating: parseFloat(rating) || 0,
+      meta: {
+        wifi,
+        parking,
+        breakfast,
+        pets,
+      },
+      location: {
+        address: address.trim() || null,
+        city: city.trim() || null,
+        zip: zip.trim() || null,
+        country: country.trim() || null,
+        continent: continent.trim() || null,
+      },
     };
 
     try {
@@ -74,16 +119,6 @@ function CreateVenuePage() {
           />
         </Form.Group>
 
-        <Form.Group controlId="formLocation" className="mb-3">
-          <Form.Label>Location</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </Form.Group>
-
         <Form.Group controlId="formDescription" className="mb-3">
           <Form.Label>Description</Form.Label>
           <Form.Control
@@ -91,6 +126,133 @@ function CreateVenuePage() {
             placeholder="Enter venue description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formMediaUrl" className="mb-3">
+          <Form.Label>Media URL</Form.Label>
+          <Form.Control
+            type="url"
+            placeholder="Enter media URL"
+            value={mediaUrl}
+            onChange={(e) => setMediaUrl(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formMediaAlt" className="mb-3">
+          <Form.Label>Media Alt Text</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter media alt text"
+            value={mediaAlt}
+            onChange={(e) => setMediaAlt(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formPrice" className="mb-3">
+          <Form.Label>Price</Form.Label>
+          <Form.Control
+            type="number"
+            placeholder="Enter price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formMaxGuests" className="mb-3">
+          <Form.Label>Max Guests</Form.Label>
+          <Form.Control
+            type="number"
+            placeholder="Enter max guests"
+            value={maxGuests}
+            onChange={(e) => setMaxGuests(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formRating" className="mb-3">
+          <Form.Label>Rating</Form.Label>
+          <Form.Control
+            type="number"
+            placeholder="Enter rating (optional)"
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Check
+            type="checkbox"
+            label="WiFi"
+            checked={wifi}
+            onChange={(e) => setWifi(e.target.checked)}
+          />
+          <Form.Check
+            type="checkbox"
+            label="Parking"
+            checked={parking}
+            onChange={(e) => setParking(e.target.checked)}
+          />
+          <Form.Check
+            type="checkbox"
+            label="Breakfast"
+            checked={breakfast}
+            onChange={(e) => setBreakfast(e.target.checked)}
+          />
+          <Form.Check
+            type="checkbox"
+            label="Pets Allowed"
+            checked={pets}
+            onChange={(e) => setPets(e.target.checked)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formAddress" className="mb-3">
+          <Form.Label>Address</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formCity" className="mb-3">
+          <Form.Label>City</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter city"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formZip" className="mb-3">
+          <Form.Label>Zip Code</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter zip code"
+            value={zip}
+            onChange={(e) => setZip(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formCountry" className="mb-3">
+          <Form.Label>Country</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formContinent" className="mb-3">
+          <Form.Label>Continent</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter continent"
+            value={continent}
+            onChange={(e) => setContinent(e.target.value)}
           />
         </Form.Group>
 

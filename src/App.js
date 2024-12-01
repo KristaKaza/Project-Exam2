@@ -8,8 +8,9 @@ import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import ProfilePage from "./components/ProfilePage";
 import CreateBookingPage from "./components/CreateBookingPage";
-import ParentComponent from "./components/ParentComponent"; // Adjust path as necessary
 import CreateVenuePage from "./components/CreateVenuePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import UpdateProfileForm from "./components/UpdateProfileForm"; // Import the correct page
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -17,8 +18,10 @@ function App() {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken"); // Remove token on logout
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
     setIsAuthenticated(false);
+    window.location.href = "/login"; // Redirect to login after logout
   };
 
   return (
@@ -31,7 +34,27 @@ function App() {
         <Route path="/search" element={<SearchResults />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
-        <Route path="/profile/:username" element={<ProfilePage />} />
+
+        {/* Update Profile Page */}
+        <Route
+          path="/update-profile/:username"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <UpdateProfileForm />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Profile Page */}
+        <Route
+          path="/profile/:username"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/create-booking/:venueId"
           element={<CreateBookingPage />}

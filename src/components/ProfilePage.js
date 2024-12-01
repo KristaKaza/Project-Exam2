@@ -1,70 +1,84 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 
-function ProfilePage() {
-  const { username } = useParams(); // Extracting the username from the URL params
-  const [profileData, setProfileData] = useState(null);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+const ProfilePage = () => {
+  const { username } = useParams();
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Ensure username exists in the URL
-    if (!username) {
-      setError("Username is required.");
-      return;
-    }
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.log("No token found, please log in again");
+        setLoading(false);
+        return;
+      }
 
-    const token = localStorage.getItem("authToken");
-
-    if (!token) {
-      // If there's no token, redirect to login page
-      navigate("/login");
-      return;
-    }
-
-    const fetchProfileData = async () => {
       try {
         const response = await fetch(
-          `https://v2.api.noroff.dev/user/${username}`,
+          `https://v2.api.noroff.dev/holidaze/profiles/${username}`,
           {
-            method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
+              "X-Noroff-API-Key": "b61fd6a4-7084-485e-8368-40fa2e08e36e",
             },
           }
         );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          if (errorData.message === "Invalid authorization token") {
-            localStorage.removeItem("authToken"); // Remove invalid token
-            navigate("/login"); // Redirect to login
-          } else {
-            setError("Error loading profile data");
-          }
-          return;
-        }
-
         const data = await response.json();
-        setProfileData(data);
+        if (response.ok) {
+          setProfile(data.data);
+        } else {
+          console.error("Error fetching profile:", data);
+        }
       } catch (error) {
-        setError("An error occurred. Please try again.");
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchProfileData();
-  }, [username, navigate]);
+    fetchProfile();
+  }, [username]);
 
-  if (error) return <div>{error}</div>;
-  if (!profileData) return <div>Loading...</div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!profile) {
+    return <div>Error: Profile not found or unauthorized</div>;
+  }
 
   return (
     <div>
-      <h1>{profileData.name}'s Profile</h1>
-      <p>Email: {profileData.email}</p>
-      <p>Role: {profileData.role}</p>
+      <h1>{profile.name}'s Profile</h1>
+      <img src={profile.avatar.url} alt={profile.avatar.alt} width="200" />
+      <p>
+        <Link
+          to={{
+            pathname: `/update-profile/${username}`,
+            state: { profile }, // Pass the fetched profile data to the UpdateProfileForm
+          }}
+        >
+          Update profile
+        </Link>
+      </p>
+      <img src={profile.banner.url} alt={profile.banner.alt} width="100%" />
+      <p>
+        <strong>Email:</strong> {profile.email}
+      </p>
+      <p>
+        <strong>Bio:</strong> {profile.bio || "No bio provided"}
+      </p>
+      <p>
+        <strong>Venue Manager:</strong> {profile.venueManager ? "Yes" : "No"}
+      </p>
+      <p>
+        <strong>Bookings:</strong> {profile._count.bookings}
+      </p>
     </div>
   );
-}
+};
 
 export default ProfilePage;
