@@ -30,7 +30,6 @@ git clone https://github.com/KristaKaza/project-exam2
 Navigate to the Project Directory
 Change into the project directory:
 
-cd online-shop
 npm install
 npm start
 npm run build
